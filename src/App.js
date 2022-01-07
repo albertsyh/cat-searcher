@@ -126,16 +126,26 @@ function App() {
           const blob = new Blob([data], { type: headers["content-type"] });
           const image = URL.createObjectURL(blob);
           setResults(image);
+          setIsLoading(false);
         })
         .catch((error) => {
+          // this checks for api request cancellations
+          if (
+            Object.keys(error).includes("message") &&
+            Object.keys(error).length === 1
+          ) {
+            return;
+          }
+
           if (get(error, "response.status") === 404) {
             setResults(null);
           } else {
-            console.log("Either this was cancelled, or an error occured.", error);
+            console.log(
+              "Either this was cancelled, or an error occured.",
+              error
+            );
             setError(error.message);
           }
-        })
-        .finally(() => {
           setIsLoading(false);
         });
     },
@@ -159,7 +169,10 @@ function App() {
   );
 
   return (
-    <div className="vw-100 d-flex" style={{ minHeight: "100vh" }}>
+    <div
+      className="vw-100 d-flex mx-auto"
+      style={{ minHeight: "100vh", maxWidth: 600 }}
+    >
       <div className="container">
         <div className="row my-4">
           <div className="col">
